@@ -395,17 +395,20 @@ function love.draw()
 end
 
 -- user inputs
-function love.mousereleased(x, y)
-    -- input initials
-    mostFadedLight = {-1, 0}
-    touched_light = false
+function user_input(x, y)
+    -- play
+    if state == "play" then
+        -- input initials
+        mostFadedLight = {-1, 0}
+        touched_light = false
 
-    -- checks for nearest interacted light
-    for light = 1, #Lights do
-        if math.dist(x, y, Lights[light].x, Lights[light].y) <= Lights[light].r then
-            if mostFadedLight[2] > math.dist(x, y, Lights[light].x, Lights[light].y) or mostFadedLight[2] == 0 then
-                mostFadedLight = {light, math.dist(x, y, Lights[light].x, Lights[light].y)}
-                touched_light = true
+        -- checks for nearest interacted light
+        for light = 1, #Lights do
+            if math.dist(x, y, Lights[light].x, Lights[light].y) <= Lights[light].r then
+                if mostFadedLight[2] > math.dist(x, y, Lights[light].x, Lights[light].y) or mostFadedLight[2] == 0 then
+                    mostFadedLight = {light, math.dist(x, y, Lights[light].x, Lights[light].y)}
+                    touched_light = true
+                end
             end
         end
     end
@@ -427,7 +430,7 @@ function love.mousereleased(x, y)
     if love.mouse.isCursorSupported() then
         if state == "settings" then
             if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Pointer") - padding then
-                if x < love.graphics.getHeight() - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - padding - padding - padding - padding and x > love.graphics.getHeight() - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - padding - padding - padding - padding then
+                if y < love.graphics.getHeight() - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - padding - padding - padding - padding and x > love.graphics.getHeight() - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - padding - padding - padding - padding then
                     love.mouse.setVisible(not(love.mouse.isVisible()))
                 end
             end
@@ -437,7 +440,7 @@ function love.mousereleased(x, y)
     -- shaders
     if state == "settings" then
         if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Shaders") - padding then
-            if x < love.graphics.getHeight() - font:getHeight("Shaders") - font:getHeight("Shaders") - padding - padding - padding and x > love.graphics.getHeight() - font:getHeight("Shaders") - font:getHeight("Shaders") - font:getHeight("Shaders") - padding - padding - padding then
+            if y < love.graphics.getHeight() - font:getHeight("Shaders") - font:getHeight("Shaders") - padding - padding - padding and x > love.graphics.getHeight() - font:getHeight("Shaders") - font:getHeight("Shaders") - font:getHeight("Shaders") - padding - padding - padding then
                 shaders_toggle()
             end
         end
@@ -446,7 +449,7 @@ function love.mousereleased(x, y)
     -- audio
     if state == "settings" then
         if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Audio") - padding then
-            if x < love.graphics.getHeight() - font:getHeight("Audio") - padding - padding and x > love.graphics.getHeight() - font:getHeight("Audio") - font:getHeight("Audio") - padding - padding then
+            if y < love.graphics.getHeight() - font:getHeight("Audio") - padding - padding and x > love.graphics.getHeight() - font:getHeight("Audio") - font:getHeight("Audio") - padding - padding then
                 if love.audio.getVolume() >= 1 then
                     love.audio.setVolume(0)
                     music:stop()
@@ -462,7 +465,7 @@ function love.mousereleased(x, y)
     -- stars
     if state == "settings" then
         if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Stars") - padding then
-            if x < love.graphics.getHeight() - padding and x > love.graphics.getHeight() - font:getHeight("Stars") - padding then
+            if y < love.graphics.getHeight() - padding and x > love.graphics.getHeight() - font:getHeight("Stars") - padding then
                 if do_render_stars then
                     do_render_stars = false
                     star_table = {}
@@ -477,7 +480,7 @@ function love.mousereleased(x, y)
     -- home
     if state == "settings" then
         if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Menu") - padding then
-            if x < font:getHeight("Menu") and x > 0 then
+            if y < font:getHeight("Menu") and x > 0 then
                 state = "menu"
             end
         end
@@ -512,121 +515,14 @@ function love.mousereleased(x, y)
     end
 end
 
+-- mouse
+function love.mousereleased(x, y)
+    user_input(x, y)
+end
+
+-- touch
 function love.touchreleased(id, x, y)
-    -- input initials
-    mostFadedLight = {-1, 0}
-    touched_light = false
-
-    -- checks for nearest interacted light
-    for light = 1, #Lights do
-        if math.dist(x, y, Lights[light].x, Lights[light].y) <= Lights[light].r then
-            if mostFadedLight[2] > math.dist(x, y, Lights[light].x, Lights[light].y) or mostFadedLight[2] == 0 then
-                mostFadedLight = {light, math.dist(x, y, Lights[light].x, Lights[light].y)}
-                touched_light = true
-            end
-        end
-    end
-
-    -- removes nearest interacted light and increases fade speed if any else resets game
-    if touched_light then
-        if mostFadedLight[1] >= 0 then
-            table.remove(Lights, mostFadedLight[1])
-            score = score + 1
-            fade_speed = fade_speed + fade_speed_increment
-        end
-    else
-        if #Lights ~= 0 then
-            reset_game()
-        end
-    end
-
-    -- pointer
-    if love.mouse.isCursorSupported() then
-        if state == "settings" then
-            if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Pointer") - padding then
-                if x < love.graphics.getHeight() - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - padding - padding - padding - padding and x > love.graphics.getHeight() - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - font:getHeight("Pointer") - padding - padding - padding - padding then
-                    love.mouse.setVisible(not(love.mouse.isVisible()))
-                end
-            end
-        end
-    end
-
-    -- shaders
-    if state == "settings" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Shaders") - padding then
-            if x < love.graphics.getHeight() - font:getHeight("Shaders") - font:getHeight("Shaders") - padding - padding - padding and x > love.graphics.getHeight() - font:getHeight("Shaders") - font:getHeight("Shaders") - font:getHeight("Shaders") - padding - padding - padding then
-                shaders_toggle()
-            end
-        end
-    end
-
-    -- audio
-    if state == "settings" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Audio") - padding then
-            if x < love.graphics.getHeight() - font:getHeight("Audio") - padding - padding and x > love.graphics.getHeight() - font:getHeight("Audio") - font:getHeight("Audio") - padding - padding then
-                if love.audio.getVolume() >= 1 then
-                    love.audio.setVolume(0)
-                    music:stop()
-                else
-                    love.audio.setVolume(1)
-                    music:play()
-                    music:setLooping(true)
-                end
-            end
-        end
-    end
-
-    -- stars
-    if state == "settings" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Stars") - padding then
-            if x < love.graphics.getHeight() - padding and x > love.graphics.getHeight() - font:getHeight("Stars") - padding then
-                if do_render_stars then
-                    do_render_stars = false
-                    star_table = {}
-                else
-                    do_render_stars = true
-                    create_stars()
-                end
-            end
-        end
-    end
-
-    -- home
-    if state == "settings" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Menu") - padding then
-            if x < font:getHeight("Menu") and x > 0 then
-                state = "menu"
-            end
-        end
-    end
-    
-    -- settings button
-    if state == "menu" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Settings") - padding then
-            if y < love.graphics.getHeight() - font:getHeight("Settings") - font:getHeight("Settings") - padding - padding - padding and y > love.graphics.getHeight() - font:getHeight("Settings") - font:getHeight("Settings") - font:getHeight("Settings") - padding - padding - padding then
-                state = "settings"
-            end
-        end
-    end
-
-    -- leave button
-    if state == "menu" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Leave") - padding then
-            if y < love.graphics.getHeight() - font:getHeight("Leave") - padding - padding and y > love.graphics.getHeight() - font:getHeight("Leave") - font:getHeight("Leave") - padding - padding then
-                love.event.quit("quit")
-            end
-        end
-    end
-
-    -- play button
-    if state == "menu" then
-        if x < love.graphics.getWidth() - padding and x > love.graphics.getWidth() - font:getWidth("Play") - padding then
-            if y < love.graphics.getHeight() - padding and y > love.graphics.getHeight() - font:getHeight("Play") - padding then
-                state = "play"
-                score = 0
-            end
-        end
-    end
+    user_input(x, y)
 end
 
 -- window resize
